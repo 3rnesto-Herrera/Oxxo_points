@@ -1,0 +1,20 @@
+[
+  {
+    "nombre": "Ernesto",
+    "correo": "prueba1@gmail.com",
+    "puntos": 13,
+    "fechaRegistro": "2026-11-01T18:00:04.549Z"
+  },
+  {
+    "nombre": "Mario",
+    "correo": "prueba002@gmail.com",
+    "puntos": 15,
+    "fechaRegistro": "2026-11-03T01:12:54.971Z"
+  },
+  {
+    "nombre": "Lucas",
+    "correo": "prueba0003@gmail.com",
+    "puntos": 0,
+    "fechaRegistro": "2026-11-07T19:52:25.514Z"
+  }
+]

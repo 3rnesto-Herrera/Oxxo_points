@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXXO Points - Base de Datos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .db-table-container {
+            width: 100%;
+            max-width: 950px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-top: 10px;
+        }
+
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Poppins', sans-serif;
+            text-align: left;
+        }
+
+        .db-table th {
+            background-color: #e30613;
+            color: #ffffff;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .db-table th:first-child {
+            border-top-left-radius: 8px;
+        }
+
+        .db-table th:last-child {
+            border-top-right-radius: 8px;
+        }
+
+        .db-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eeeeee;
+            color: #333333;
+            font-size: 14px;
+        }
+
+        .db-table tbody tr:hover {
+            background-color: #fffde6;
+        }
+
+        .editable-cell {
+            background-color: #f8f9fa;
+            border: 1px dashed #ced4da;
+            border-radius: 4px;
+            padding: 6px 10px;
+            outline: none;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .editable-cell:focus {
+            background-color: #ffffff;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.25);
+        }
+
+        .db-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action-sm {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-mod-sm {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .btn-elim-sm {
+            background-color: #dc3545;
+            color: #ffffff;
+        }
+
+        .btn-action-sm:hover {
+            opacity: 0.85;
+        }
+
+        @media (max-width: 768px) {
+            .db-table-container {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="oxxo-header">
+        <div class="logo-container">
+            <a href="/">
+                <img src="img/logo.png" alt="OXXO Logo" class="oxxo-logo-img">
+            </a>
+        </div>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    <div class="yellow-bar"></div>
+
+    <main class="registro-container">
+        
+        <div class="registro-header-card" style="max-width: 950px;">
+            <h1>Base de Datos</h1>
+            <p>Edita nombres, correos o puntos directamente en la tabla</p>
+        </div>
+
+        <div class="db-table-container">
+            <table class="db-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo Electrónico</th>
+                        <th>Puntos</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuariosBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #777;">Cargando registros...</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <a href="/" class="btn-cancelar" style="display: inline-block; padding: 10px 25px; text-decoration: none;">Volver al Inicio</a>
+                <a href="/logout-gerente" style="display: inline-block; padding: 10px 25px; background-color: #dc3545; color: #ffffff; border-radius: 12px; font-weight: 700; text-decoration: none; text-align: center;">Cerrar Sesión</a>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        async function cargarBaseDeDatos() {
+            const tbody = document.getElementById('tablaUsuariosBody');
+            
+            try {
+                const response = await fetch('/api/usuarios');
+                
+                if (response.status === 401) {
+                    window.location.href = '/login-gerente';
+                    return;
+                }
+
+                const resultado = await response.json();
+
+                if (resultado.exito && resultado.usuarios.length > 0) {
+                    tbody.innerHTML = '';
+                    resultado.usuarios.forEach(usuario => {
+                        const fechaFormatted = usuario.fechaRegistro 
+                            ? new Date(usuario.fechaRegistro).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
+                            : 'N/A';
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><div contenteditable="true" class="editable-cell" id="nombre-${usuario.correo}">${usuario.nombre}</div></td>
+                            <td><div contenteditable="true" class="editable-cell" id="correo-${usuario.correo}">${usuario.correo}</div></td>
+                            <td><div contenteditable="true" class="editable-cell" id="puntos-${usuario.correo}" style="width: 70px; text-align: center; font-weight: 700;">${usuario.puntos}</div></td>
+                            <td>${fechaFormatted}</td>
+                            <td class="db-actions">
+                                <button class="btn-action-sm btn-mod-sm" onclick="guardarModificacion('${usuario.correo}')">Guardar</button>
+                                <button class="btn-action-sm btn-elim-sm" onclick="eliminarUsuario('${usuario.correo}')">Eliminar</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #777;">No hay usuarios registrados en la base de datos.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error al obtener la base de datos:', error);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #dc3545;">Error al conectar con el servidor.</td></tr>';
+            }
+        }
+
+        async function guardarModificacion(correoOriginal) {
+            const nuevoNombre = document.getElementById(`nombre-${correoOriginal}`).innerText.trim();
+            const nuevoCorreo = document.getElementById(`correo-${correoOriginal}`).innerText.trim();
+            const nuevosPuntosText = document.getElementById(`puntos-${correoOriginal}`).innerText.trim();
+            const puntos = parseInt(nuevosPuntosText);
+
+            if (!nuevoNombre || !nuevoCorreo) {
+                alert('El nombre y el correo no pueden quedar vacíos.');
+                cargarBaseDeDatos();
+                return;
+            }
+
+            const regexGmail = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+            if (!regexGmail.test(nuevoCorreo)) {
+                alert('Solo se permiten direcciones con dominio @gmail.com.');
+                cargarBaseDeDatos();
+                return;
+            }
+
+            if (isNaN(puntos) || puntos < 0) {
+                alert('Los puntos deben ser un número válido.');
+                cargarBaseDeDatos();
+                return;
+            }
+
+            try {
+                const resModificar = await fetch('/api/modificar', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ correoOriginal, nuevoNombre, nuevoCorreo })
+                });
+                const resultadoMod = await resModificar.json();
+
+                if (!resModificar.ok || !resultadoMod.exito) {
+                    alert(`Error al actualizar datos: ${resultadoMod.mensaje}`);
+                    cargarBaseDeDatos();
+                    return;
+                }
+
+                const resPuntos = await fetch('/api/modificar-puntos', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ correo: nuevoCorreo, puntos })
+                });
+                const resultadoPuntos = await resPuntos.json();
+
+                if (resPuntos.ok && resultadoPuntos.exito) {
+                    alert('✅ ¡Cambios y puntos guardados exitosamente!');
+                    cargarBaseDeDatos();
+                } else {
+                    alert(`Error al actualizar puntos: ${resultadoPuntos.mensaje}`);
+                    cargarBaseDeDatos();
+                }
+            } catch (error) {
+                console.error('Error detallado en la red:', error);
+                alert('Hubo un error al conectar con el servidor.');
+            }
+        }
+
+        async function eliminarUsuario(correo) {
+            if (!confirm(`¿Estás seguro de eliminar permanentemente el registro de ${correo}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/eliminar/${encodeURIComponent(correo)}`, {
+                    method: 'DELETE'
+                });
+
+                const resultado = await response.json();
+
+                if (response.ok && resultado.exito) {
+                    alert(`✅ ${resultado.mensaje}`);
+                    cargarBaseDeDatos();
+                } else {
+                    alert(`Error: ${resultado.mensaje}`);
+                }
+            } catch (error) {
+                console.error('Error en la red:', error);
+                alert('Hubo un error al conectar con el servidor.');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', cargarBaseDeDatos);
+    </script>
+
+</body>
+</html>

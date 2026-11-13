@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXXO Points - Modificar usuarios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .modificar-layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 15px;
+        }
+
+        .btn-realizar-mod {
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: background-color 0.3s, transform 0.2s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-realizar-mod:hover {
+            background-color: #ffde59;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .modificar-layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="oxxo-header">
+        <div class="logo-container">
+            <a href="/">
+                <img src="img/logo.png" alt="OXXO Logo" class="oxxo-logo-img">
+            </a>
+        </div>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    <div class="yellow-bar"></div>
+
+    <main class="registro-container">
+        
+        <div class="registro-header-card">
+            <h1>Modificar<br>usuarios</h1>
+            <p>Ingresa los datos que se deseen reemplazar</p>
+        </div>
+
+        <form id="modificarForm" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            
+            <div class="modificar-layout-grid">
+                <div class="input-card" style="margin-bottom: 0;">
+                    <label for="nombreAntiguo">Nombre antiguo</label>
+                    <input type="text" id="nombreAntiguo" placeholder="Ingresa el dato que se reemplazara" required>
+                </div>
+                <div class="input-card" style="margin-bottom: 0;">
+                    <label for="nombreNuevo">Nombre nuevo</label>
+                    <input type="text" id="nombreNuevo" placeholder="Ingresa el dato nuevo" required>
+                </div>
+            </div>
+
+            <div class="modificar-layout-grid">
+                <div class="input-card" style="margin-bottom: 0;">
+                    <label for="correoAntiguo">Correo Electronico antiguo</label>
+                    <input type="email" id="correoAntiguo" placeholder="Ingresa el dato que se reemplazara" required>
+                </div>
+                <div class="input-card" style="margin-bottom: 0;">
+                    <label for="correoNuevo">Correo Electronico nuevo</label>
+                    <input type="email" id="correoNuevo" placeholder="Ingresa el dato nuevo" required>
+                </div>
+            </div>
+
+            <div class="form-buttons" style="display: flex; gap: 15px; margin-top: 15px; width: 100%; max-width: 700px; justify-content: center;">
+                <a href="/registro" class="btn-cancelar" style="flex: 1; text-align: center; text-decoration: none;">Cancelar<br>modificacion</a>
+                <button type="submit" class="btn-realizar-mod" style="flex: 1;">Realizar<br>Modificacion</button>
+            </div>
+
+        </form>
+
+    </main>
+
+    <script>
+        const modificarForm = document.getElementById('modificarForm');
+
+        modificarForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const correoOriginal = document.getElementById('correoAntiguo').value.trim();
+            const nuevoCorreo = document.getElementById('correoNuevo').value.trim();
+            const nuevoNombre = document.getElementById('nombreNuevo').value.trim();
+
+            if (!correoOriginal || !nuevoCorreo || !nuevoNombre) {
+                alert('Por favor completa todos los campos.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/modificar', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ correoOriginal, nuevoNombre, nuevoCorreo })
+                });
+
+                const resultado = await response.json();
+
+                if (response.ok && resultado.exito) {
+                    alert(`${resultado.mensaje}`);
+                    window.location.href = '/registro';
+                } else {
+                    alert(`Error: ${resultado.mensaje || 'No se pudo actualizar el registro.'}`);
+                }
+            } catch (error) {
+                console.error('Error detallado en la red:', error);
+                alert('Hubo un error al conectar con el servidor.');
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXXO Points - Registro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .registro-layout-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 650px;
+            margin-bottom: 15px;
+        }
+
+        .registro-card-action {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            font-family: 'Poppins', sans-serif;
+            transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+            text-align: center;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        .registro-card-action:hover {
+            background-color: #ffde59;
+            transform: translateY(-2px);
+        }
+
+        .registro-card-action span {
+            font-weight: 700;
+            font-size: 16px;
+            color: #000;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .registro-layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="oxxo-header">
+        <div class="logo-container">
+            <a href="/">
+                <img src="img/logo.png" alt="OXXO Logo" class="oxxo-logo-img">
+            </a>
+        </div>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    <div class="yellow-bar"></div>
+
+    <main class="registro-container">
+        
+        <div class="registro-header-card">
+            <h1>Registro</h1>
+            <p>Ingresa los datos para el registro</p>
+        </div>
+
+        <form id="registroForm" class="registro-form" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            
+            <div class="registro-layout-grid">
+                <div class="input-card" style="margin-bottom: 0; width: 100%;">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ingresa los datos para el registro" required>
+                </div>
+                <a href="/modificar" class="registro-card-action">
+                    <span>modificar<br>Registro</span>
+                </a>
+            </div>
+
+            <div class="registro-layout-grid">
+                <div class="input-card" style="margin-bottom: 0; width: 100%;">
+                    <label for="correo">Correo Electronico</label>
+                    <input type="email" id="correo" name="correo" placeholder="ejemplo@gmail.com" required>
+                </div>
+                <a href="/eliminar" class="registro-card-action">
+                    <span>Eliminar<br>Registro</span>
+                </a>
+            </div>
+
+            <div class="form-buttons" style="display: flex; gap: 15px; margin-top: 10px; width: 100%; max-width: 650px; justify-content: space-between;">
+                <a href="/" class="btn-cancelar" style="flex: 1; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancelar Registro</a>
+                <button type="submit" class="btn-realizar" style="flex: 1;">Realizar Registro</button>
+            </div>
+
+        </form>
+
+    </main>
+
+    <script>
+        const registroForm = document.getElementById('registroForm');
+
+        registroForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombre').value.trim();
+            const correo = document.getElementById('correo').value.trim();
+
+            const regexGmail = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+            if (!regexGmail.test(correo)) {
+                alert('Solo se permiten direcciones con dominio @gmail.com.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/registrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, correo })
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.exito) {
+                    alert(`${resultado.mensaje}`);
+                    registroForm.reset();
+                    window.location.href = '/';
+                } else {
+                    alert(`Error: ${resultado.mensaje}`);
+                }
+            } catch (error) {
+                console.error('Error en la red:', error);
+                alert('Hubo un error al conectar con el servidor.');
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXXO Points - Login Gerencia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .login-card h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            font-size: 14px;
+            color: #666666;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 15px;
+        }
+
+        .btn-ingresar {
+            background-color: #ffde59;
+            color: #000000;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn-ingresar:hover {
+            background-color: #fccc00;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="oxxo-header">
+        <div class="logo-container">
+            <a href="/">
+                <img src="img/logo.png" alt="OXXO Logo" class="oxxo-logo-img">
+            </a>
+        </div>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    <div class="yellow-bar"></div>
+
+    <main class="login-container">
+        
+        <div class="login-card">
+            <h1>Acceso Gerencial</h1>
+            <p>Ingresa la contraseña de gerencia para acceder a la Base de Datos</p>
+        </div>
+
+        <form id="loginForm" class="login-form">
+            <div class="input-card" style="width: 100%;">
+                <label for="passwordGerente">Contraseña de Gerencia</label>
+                <input type="password" id="passwordGerente" placeholder="Ingresa la contraseña" required>
+            </div>
+
+            <button type="submit" class="btn-ingresar">Ingresar al Sistema</button>
+            <a href="/" class="btn-cancelar" style="text-align: center; text-decoration: none; padding: 12px; display: block; margin-top: 5px;">Volver al Inicio</a>
+        </form>
+
+    </main>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('passwordGerente').value.trim();
+
+            try {
+                const response = await fetch('/api/login-gerente', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const resultado = await response.json();
+
+                if (response.ok && resultado.exito) {
+                    window.location.href = '/database';
+                } else {
+                    alert(`${resultado.mensaje || 'Contraseña incorrecta'}`);
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
+                alert('Hubo un error al conectar con el servidor.');
+            }
+        });
+    </script>
+
+</body>
+</html>
